@@ -12,4 +12,3 @@ Buatlah sebuah web seperti netflix menggunakan react. Dengan ketentuan sebagai b
 
 Note :
 tambahkan YOUR_API_KEY pada src/config/config.jsx
-tes
