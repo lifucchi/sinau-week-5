@@ -9,3 +9,6 @@ Buatlah sebuah web seperti netflix menggunakan react. Dengan ketentuan sebagai b
 4. Sediakan kolom pencarian, agar data bisa difilter. Lalu handle jika data tidak ditemukan.
 5. Buatlah kreasi semenarik mungkin dengan menerapkan slider dll.
 6. Push tugas nya ke sebuah repo lalu kirimkan ke instructor.
+
+Note :
+tambahkan YOUR_API_KEY pada src/config/config.jsx
