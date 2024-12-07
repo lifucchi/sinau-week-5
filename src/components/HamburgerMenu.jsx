@@ -1,7 +1,7 @@
 // HamburgerMenu.js
 import React, { useState } from "react";
-import NavbarButton from "./NavbarButtons";
-import NavbarList from "./NavbarList";
+// import NavbarButton from "./Navbar/NavbarButtons";
+import NavbarList from "./Navbar/NavbarList";
 
 const HamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +41,7 @@ const HamburgerMenu = () => {
             {/* Navigation Links */}
             <ul className="flex flex-col items-center justify-center space-y-6 h-full text-lg">
               <NavbarList />
-              <NavbarButton />
+              {/* <NavbarButton /> */}
             </ul>
           </div>
         )}

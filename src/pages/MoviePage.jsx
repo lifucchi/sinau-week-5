@@ -1,17 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import MovieItemLayout from "../Layouts/MovieItemLayout";
-import { BASE_URL, API_KEY } from "../config/config";
+import endpoints from "../config/endpoint";
 
 const MoviePage = ({ categoryTitle, apiEndpoint }) => {
-  const url = `${BASE_URL}${apiEndpoint}?language=en-US&page=1`;
-  const options = {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      Authorization: `Bearer ${API_KEY}`,
-    },
-  };
-
   const scrollContainerRef = useRef(null);
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +10,10 @@ const MoviePage = ({ categoryTitle, apiEndpoint }) => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch(url, options);
+        const response = await fetch(endpoints.dynamicEndpoint(apiEndpoint), endpoints.options);
+        if (!response.ok) {
+          throw new Error("Failed to fetch movie");
+        }
         const data = await response.json();
         setMovies(data.results);
       } catch (error) {
@@ -32,25 +26,43 @@ const MoviePage = ({ categoryTitle, apiEndpoint }) => {
     fetchMovies();
 
     let scrollInterval;
-    if (!loading) {
-      const startSlider = () => {
-        const scrollContainer = document.querySelector(".movie-slider");
-        scrollInterval = setInterval(() => {
-          if (scrollContainer) {
-            const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+    const scrollContainer = document.querySelector(".movie-slider");
 
-            if (scrollLeft + clientWidth >= scrollWidth) {
-              scrollContainer.scrollTo({ left: 0, behavior: "smooth" });
-            } else {
-              scrollContainer.scrollBy({ left: 300, behavior: "smooth" });
-            }
+    if (!loading && scrollContainer) {
+      const startSlider = () => {
+        scrollInterval = setInterval(() => {
+          const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+
+          if (scrollLeft + clientWidth >= scrollWidth) {
+            scrollContainer.scrollTo({ left: 0, behavior: "smooth" });
+          } else {
+            scrollContainer.scrollBy({ left: 300, behavior: "smooth" });
           }
         }, 2000);
       };
 
       startSlider();
+
+      // Menghentikan slider saat di-hover
+      const stopSlider = () => {
+        clearInterval(scrollInterval);
+      };
+
+      const resumeSlider = () => {
+        startSlider();
+      };
+
+      scrollContainer.addEventListener("mouseenter", stopSlider);
+      scrollContainer.addEventListener("mouseleave", resumeSlider);
+
+      return () => {
+        clearInterval(scrollInterval);
+        if (scrollContainer) {
+          scrollContainer.removeEventListener("mouseenter", stopSlider);
+          scrollContainer.removeEventListener("mouseleave", resumeSlider);
+        }
+      };
     }
-    return () => clearInterval(scrollInterval);
   }, [loading]);
 
   if (loading) {
@@ -83,28 +95,22 @@ const MoviePage = ({ categoryTitle, apiEndpoint }) => {
   };
 
   return (
-    <div className="min-h-screen p-8 pt-24">
+    <div className="relative min-h-0 p-8 pt-24">
       <h1 className="text-white text-4xl font-bold text-center mb-8">{categoryTitle} Movies</h1>
       <div className="relative">
         {/* Tombol Scroll Kiri */}
-        <button
-          onClick={scrollLeft}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 px-6 py-2 text-white rounded-lg bg-gradient-to-r from-teal-400 to-blue-500 mt-4 transition-transform transform hover:scale-105 hover:from-teal-500 hover:to-blue-600  z-10"
-        >
-          &#60;
+        <button onClick={scrollLeft} className="absolute left-0 top-1/2 transform -translate-y-1/2 w-16 h-64 flex items-center justify-center text-white rounded-lg bg-black bg-opacity-50 hover:bg-opacity-100 transition-opacity z-20">
+          <span className="text-3xl">&#60;</span>
         </button>
 
         {/* Daftar Film */}
-        <div ref={scrollContainerRef} className=" movie-slider overflow-x-auto whitespace-nowrap scroll-smooth scrollbar-hide">
-          <div className="inline-flex space-x-6">{movies.length > 0 ? movies.map((movie) => <MovieItemLayout key={movie.id} movie={movie} />) : <div className="text-white text-center">No movies found</div>}</div>
+        <div ref={scrollContainerRef} className="movie-slider w-full overflow-x-auto whitespace-nowrap scroll-smooth scrollbar-hide">
+          <div className="inline-flex space-x-6">{movies.length > 0 ? movies.map((movie) => <MovieItemLayout key={movie.id} movie={movie} />) : <div className="text-white text-center center">No movies found</div>}</div>
         </div>
 
         {/* Tombol Scroll Kanan */}
-        <button
-          onClick={scrollRight}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 px-6 py-2 text-white rounded-lg bg-gradient-to-r from-teal-400 to-blue-500 mt-4 transition-transform transform hover:scale-105 hover:from-teal-500 hover:to-blue-600 z-10"
-        >
-          &#62;
+        <button onClick={scrollRight} className="absolute right-0 top-1/2 transform -translate-y-1/2 w-16 h-64 flex items-center justify-center text-white rounded-lg bg-black bg-opacity-50 hover:bg-opacity-100 transition-opacity z-20">
+          <span className="text-3xl">&#62;</span>
         </button>
       </div>
     </div>
